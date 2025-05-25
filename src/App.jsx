@@ -1,35 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const Menu = (props) => {
+  const decrement = () => {
+    props.onDecrement(props.menuId);
+  };
+  const increment = () => {
+    props.onIncrement(props.menuId);
+  };
 
   return (
+    <li>
+      <button onClick={decrement}>-</button>
+      <button onClick={increment}>+</button>
+      {props.name} ({props.price}円 ☓ {props.count}個)
+    </li>
+  );
+};
+
+function App() {
+  const [counts, setCounts] = useState([0, 0, 0]);
+  const menus = [
+    { id: 0, name: "ハンバーガー", price: 400 },
+    { id: 1, name: "チーズハンバーガー", price: 500 },
+    { id: 2, name: "チキンハンバーガー", price: 600 },
+  ];
+  const total = menus.reduce((total, menu) => {
+    return total + menu.price * counts[menu.id];
+  }, 0);
+  const decrementMenu = (menuId) => {
+    if (counts[menuId] > 0) {
+      const newCounts = [...counts];
+      newCounts[menuId]--;
+      setCounts(newCounts);
+    }
+  };
+  const incrementMenu = (menuId) => {
+    const newCounts = [...counts];
+    newCounts[menuId]++;
+    setCounts(newCounts);
+  };
+
+  const menuItems = menus.map((menu) => {
+    return (
+      <Menu
+        key={menu.id}
+        menuId={menu.id}
+        count={counts[menu.id]}
+        name={menu.name}
+        price={menu.price}
+        onDecrement={decrementMenu}
+        onIncrement={incrementMenu}
+      />
+    );
+  });
+  return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>メニュー</h1>
+      <ul className="menus">{menuItems}</ul>
+      <p>合計: {total}円</p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
